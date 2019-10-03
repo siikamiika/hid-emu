@@ -9,13 +9,7 @@ import base64
 from hid.keyboard import Keyboard
 from hid.mouse import Mouse
 
-
-INPUT_TYPE_KEY = 0
-INPUT_TYPE_BTN = 1
-INPUT_TYPE_REL = 2
-
-INPUT_CODE_MOVE = 0
-INPUT_CODE_WHEEL = 1
+from data.constants import *
 
 
 class InputRouter:
