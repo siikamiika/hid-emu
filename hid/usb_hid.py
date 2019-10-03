@@ -31,7 +31,6 @@ class HidKeyboard:
     @classmethod
     def send_report(cls, report):
         with open(HID_DEVICE, 'wb') as f:
-            print(report)
             f.write(bytes([cls.report_id]) + report)
 
 
@@ -43,7 +42,6 @@ class HidMouse:
     @classmethod
     def send_report(cls, report):
         with open(HID_DEVICE, 'wb') as f:
-            print(report)
             f.write(bytes([cls.report_id]) + report)
 
 
