@@ -95,7 +95,9 @@ class EvdevToHidEvent:
     def hid_encode(self):
         hid_type = self.get_hid_type()
         hid_code = self.get_hid_code()
-        if hid_type == INPUT_TYPE_REL:
+        if hid_type in [INPUT_TYPE_KEY, INPUT_TYPE_BTN]:
+            return struct.pack('BBB', hid_type, hid_code, self.value)
+        elif hid_type == INPUT_TYPE_REL:
             val_x = 0
             val_y = 0
             if self.code in [REL_X, REL_HWHEEL]:
@@ -106,8 +108,8 @@ class EvdevToHidEvent:
         return None
 
     def get_hid_type(self):
-        if (self.code in EvdevToHidEvent.evdev_mouse_buttons and
-                self.type == EV_KEY and
+        if (self.type == EV_KEY and
+                self.code in EvdevToHidEvent.evdev_mouse_buttons and
                 self.value in [0, 1]):
             return INPUT_TYPE_BTN
         elif self.type == EV_KEY and self.value in [0, 1]:
