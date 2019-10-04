@@ -24,10 +24,10 @@ class InputSource:
     def __init__(self, *device_paths):
         self.devices = [evdev.InputDevice(p) for p in device_paths]
         self.devices_by_fd = {dev.fd: dev for dev in self.devices}
-        self.rel_events = dict(
-            move=[],
-            wheel=[],
-        )
+        self.rel_events = {
+            INPUT_CODE_MOVE: [],
+            INPUT_CODE_WHEEL: [],
+        }
 
     def stream_events(self):
         while True:
@@ -39,7 +39,7 @@ class InputSource:
                         yield result.hid_encode()
 
             # send a single mouse event consisting of multiple smaller ones
-            for hid_encoded_event in  self.combine_rel_events():
+            for hid_encoded_event in self.combine_rel_events():
                 yield hid_encoded_event
 
             # fixes some race condition or something
@@ -53,34 +53,25 @@ class InputSource:
         return event
 
     def handle_rel(self, event):
-        if event.get_hid_code() == INPUT_CODE_MOVE:
-            self.rel_events['move'].append(event)
-        elif event.get_hid_code() == INPUT_CODE_WHEEL:
-            self.rel_events['wheel'].append(event)
+        hid_code = event.get_hid_code()
+        if hid_code in self.rel_events:
+            self.rel_events[hid_code].append(event)
 
     def combine_rel_events(self):
-        move_x = 0
-        move_y = 0
-        for event in self.rel_events['move']:
-            if event.code == REL_X:
-                move_x += event.value
-            elif event.code == REL_Y:
-                move_y += event.value
-        self.rel_events['move'] = []
-        if move_x or move_y:
-            yield struct.pack('BBbb', INPUT_TYPE_REL, INPUT_CODE_MOVE, move_x, move_y)
-
-        hwheel = 0
-        wheel = 0
-        for event in self.rel_events['wheel']:
-            if event.code == REL_HWHEEL:
-                hwheel += event.value
-            elif event.code == REL_WHEEL:
-                wheel += event.value
-        self.rel_events['wheel'] = []
-        if hwheel or wheel:
-            yield struct.pack('BBbb', INPUT_TYPE_REL, INPUT_CODE_WHEEL, hwheel, wheel)
-
+        for hid_code, evdev_code_x, evdev_code_y in (
+            (INPUT_CODE_MOVE,  REL_X,      REL_Y),
+            (INPUT_CODE_WHEEL, REL_HWHEEL, REL_WHEEL),
+        ):
+            move = {evdev_code_x: 0, evdev_code_y: 0}
+            for event in self.rel_events[hid_code]:
+                move[event.code] += event.value
+            self.rel_events[hid_code] = []
+            while move[evdev_code_x] or move[evdev_code_y]:
+                x_part = min(127, max(-127, move[evdev_code_x]))
+                y_part = min(127, max(-127, move[evdev_code_y]))
+                move[evdev_code_x] -= x_part
+                move[evdev_code_y] -= y_part
+                yield struct.pack('BBbb', INPUT_TYPE_REL, hid_code, x_part, y_part)
 
 
 class EvdevToHidEvent:
@@ -126,7 +117,10 @@ class EvdevToHidEvent:
         return None
 
     def get_hid_code(self):
-        return EVDEV_TO_HID_CODE.get(self.code)
+        if self.type == EV_KEY:
+            return EVDEV_KEY_TO_HID_CODE.get(self.code)
+        elif self.type == EV_REL:
+            return EVDEV_REL_TO_HID_CODE.get(self.code)
 
 
 def main():
