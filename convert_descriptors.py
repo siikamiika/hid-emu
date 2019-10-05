@@ -7,11 +7,8 @@ HEX_PATT = re.compile(r'[0-9a-z]{2}')
 with open('descriptors.txt') as f:
     blocks = f.read().split('\n\n')
 
-
-cmd = "python -c \"with open('functions/hid.usb0/report_desc', 'wb') as f: f.write(b'{}')\""
-buff = ""
-
-for block in blocks:
+for i, block in enumerate(blocks):
+    buff = b''
     for line in block.splitlines():
         if line.strip()[0] == '#':
             continue
@@ -19,6 +16,6 @@ for block in blocks:
         if clean_line is None:
             continue
         for char in HEX_PATT.findall(clean_line.group(0)):
-            buff += f'\\x{char}'
-
-print(cmd.format(buff))
+            buff += bytes.fromhex(char)
+    with open(f'desc_{i}', 'wb') as f:
+        f.write(buff)

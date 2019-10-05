@@ -21,7 +21,8 @@
 # THE SOFTWARE.
 #
 
-HID_DEVICE = '/dev/hidg0'
+HID_KEYBOARD_DEVICE = '/dev/hidg0'
+HID_MOUSE_DEVICE = '/dev/hidg1'
 
 class HidKeyboard:
     report_id = 0x01
@@ -30,7 +31,7 @@ class HidKeyboard:
 
     @classmethod
     def send_report(cls, report):
-        with open(HID_DEVICE, 'wb') as f:
+        with open(HID_KEYBOARD_DEVICE, 'wb') as f:
             f.write(bytes([cls.report_id]) + report)
 
 
@@ -41,7 +42,7 @@ class HidMouse:
 
     @classmethod
     def send_report(cls, report):
-        with open(HID_DEVICE, 'wb') as f:
+        with open(HID_MOUSE_DEVICE, 'wb') as f:
             f.write(bytes([cls.report_id]) + report)
 
 
