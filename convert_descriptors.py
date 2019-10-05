@@ -2,7 +2,7 @@
 import re
 
 ROW_VALID_PART_PATT = re.compile(r'[0-9a-f, ]{2,}')
-HEX_PATT = re.compile(r'[0-9a-z]{2}')
+HEX_PATT = re.compile(r'[0-9a-f]{2}')
 
 with open('descriptors.txt') as f:
     blocks = f.read().split('\n\n')

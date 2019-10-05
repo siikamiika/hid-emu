@@ -8,18 +8,38 @@ cd hid_emu
 
 #echo 0x04b3 > idVendor  # IN CASE BELOW DOESN'T WORK
 #echo 0x4010 > idProduct # IN CASE BELOW DOESN'T WORK
-echo 0x1d6b > idVendor   # Linux Foundation
-echo 0x0104 > idProduct  # Multifunction Composite Gadget
 
+# echo 0x4137 > idProduct
+
+# echo 0x1d6b > idVendor        # Vendor ID
+# echo 0x0137 > idProduct       # Product ID
+
+# echo 0xc1cb > idVendor
+# echo 0xbaa2 > idProduct
+
+# echo 0x1d6b > idVendor   # Linux Foundation
+# echo 0x0104 > idProduct  # Multifunction Composite Gadget
+
+# echo 0xc1cb > idVendor
+# echo 0xbaa2 > idProduct
+echo 0x1d6b > idVendor
+echo 0x0237 > idProduct
 echo 0x0100 > bcdDevice # v1.0.0
 echo 0x0200 > bcdUSB # USB2
+
+echo 0xEF > bDeviceClass
+echo 0x02 > bDeviceSubClass
+echo 0x01 > bDeviceProtocol
+
 mkdir -p strings/0x409
 echo "badc0deddeadbeef" > strings/0x409/serialnumber
 echo "siikamiika" > strings/0x409/manufacturer
 echo "HID Emu" > strings/0x409/product
+
 mkdir -p configs/c.1/strings/0x409
-echo "Config 1: ECM network" > configs/c.1/strings/0x409/configuration
+echo "Config 1: RNDIS network" > configs/c.1/strings/0x409/configuration
 echo 250 > configs/c.1/MaxPower
+echo 0x80 > configs/c.1/bmAttributes #  USB_OTG_SRP | USB_OTG_HNP
 
 # Add functions here
 
@@ -43,19 +63,46 @@ ln -s functions/hid.usb0 configs/c.1/
 
 # network
 #####################
-mkdir -p functions/ecm.usb0
-# first byte of address must be even
-HOST="48:6f:73:74:50:43"
-SELF="42:61:64:55:53:42"
-echo $HOST > functions/ecm.usb0/host_addr
-echo $SELF > functions/ecm.usb0/dev_addr
-ln -s functions/ecm.usb0 configs/c.1/
+# mkdir -p functions/ecm.usb0
+# # first byte of address must be even
+# HOST="48:6f:73:74:50:43"
+# SELF="42:61:64:55:53:42"
+# echo $HOST > functions/ecm.usb0/host_addr
+# echo $SELF > functions/ecm.usb0/dev_addr
+# ln -s functions/ecm.usb0 configs/c.1/
+#####################
+
+# rndis network
+#####################
+mkdir -p functions/rndis.usb0
+echo "48:6f:73:74:50:43" > functions/rndis.usb0/host_addr
+echo "42:61:64:55:53:42" > functions/rndis.usb0/dev_addr
+
+mkdir -p os_desc
+echo 1       > os_desc/use
+echo 0xbc    > os_desc/b_vendor_code
+echo MSFT100 > os_desc/qw_sign
+
+mkdir -p functions/rndis.usb0/os_desc/interface.rndis
+echo RNDIS   > functions/rndis.usb0/os_desc/interface.rndis/compatible_id
+echo 5162001 > functions/rndis.usb0/os_desc/interface.rndis/sub_compatible_id
+
+ln -s functions/rndis.usb0 configs/c.1/
+ln -s configs/c.1 os_desc
 #####################
 
 # End functions
 
 ls /sys/class/udc > UDC
 
+sleep 0.2
+
 # enable network interface
-ifup usb0
+# ifup usb0
 ifconfig usb0 up
+
+IF_IP="172.16.0.1"
+IF_MASK="255.255.255.252"
+IF_DHCP_RANGE="172.16.0.2,172.16.0.2"
+
+ifconfig usb0 $IF_IP netmask $IF_MASK

@@ -1,0 +1,3 @@
+on windows, run a VM that gets the composite network device
+    didon't work immediately because everything is listed as one composite device.
+    TODO: split the composite input device and ECM network to separate devices like with usb hubs

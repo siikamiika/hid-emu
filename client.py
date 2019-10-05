@@ -23,6 +23,8 @@ def send(s, data):
 class InputSource:
     def __init__(self, *device_paths):
         self.devices = [evdev.InputDevice(p) for p in device_paths]
+        for d in self.devices:
+            d.grab()
         self.devices_by_fd = {dev.fd: dev for dev in self.devices}
         self.rel_events = {
             INPUT_CODE_MOVE: [],
