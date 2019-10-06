@@ -70,6 +70,9 @@ class InputServerHandler(socketserver.StreamRequestHandler):
             self.server.input_router.route_input(data)
             data = base64.b64decode(self.rfile.readline())
 
+    def finish(self):
+        self.server.input_router.keyboard.release_all()
+
 
 class InputServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
