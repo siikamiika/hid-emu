@@ -12,7 +12,7 @@ cd hid_emu
 # echo 0x0104 > idProduct  # Multifunction Composite Gadget
 
 echo 0x1d6b > idVendor   # Linux Foundation
-echo 0x013a > idProduct  # increment to force Windows to reidentify this device
+echo 0x013b > idProduct  # increment to force Windows to reidentify this device
 echo 0x0100 > bcdDevice # v1.0.0
 echo 0x0200 > bcdUSB # USB2
 
@@ -68,3 +68,6 @@ echo $HOSTNAME > /etc/hostname
 
 # enable network interface
 ifconfig usb0 up
+
+# start HID emulator server
+/home/pi/hid-emu/server.py
