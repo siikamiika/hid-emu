@@ -23,6 +23,8 @@ def send(s, data):
 class InputSource:
     def __init__(self, *device_paths):
         self.devices = [evdev.InputDevice(p) for p in device_paths]
+        for dev in self.devices:
+            dev.grab()
         self.devices_by_fd = {dev.fd: dev for dev in self.devices}
         self.rel_events = {
             INPUT_CODE_MOVE: [],
@@ -128,8 +130,8 @@ class EvdevToHidEvent:
 def main():
     input_source = InputSource(
         # we must go deeper
-        '/dev/input/by-id/linux-virt-kbd',
-        '/dev/input/by-id/linux-virt-mouse',
+        '/dev/input/by-id/windows-virt-kbd',
+        '/dev/input/by-id/windows-virt-mouse',
     )
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
