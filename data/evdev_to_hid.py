@@ -9,8 +9,8 @@ EVDEV_KEY_TO_HID_CODE = {
     BTN_LEFT:             HIDMouse.LEFT_BUTTON,
     BTN_MIDDLE:           HIDMouse.MIDDLE_BUTTON,
     BTN_RIGHT:            HIDMouse.RIGHT_BUTTON,
-    BTN_SIDE:             HIDMouse.BUTTON_5,
-    BTN_EXTRA:            HIDMouse.BUTTON_6,
+    BTN_SIDE:             HIDMouse.BUTTON_4,
+    BTN_EXTRA:            HIDMouse.BUTTON_5,
     # keyboard
     KEY_A:                0x04,
     KEY_B:                0x05,
