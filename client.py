@@ -122,6 +122,10 @@ class EvdevToHidEvent:
 
     def get_hid_code(self):
         if self.type == EV_KEY:
+            if self.code == KEY_HENKAN:
+                return EVDEV_KEY_TO_HID_CODE.get(KEY_RIGHTALT)
+            if self.code == KEY_KATAKANAHIRAGANA:
+                return EVDEV_KEY_TO_HID_CODE.get(KEY_BACKSPACE)
             return EVDEV_KEY_TO_HID_CODE.get(self.code)
         elif self.type == EV_REL:
             return EVDEV_REL_TO_HID_CODE.get(self.code)
